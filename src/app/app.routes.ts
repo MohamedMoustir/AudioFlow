@@ -1,3 +1,15 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+    { path: '',redirectTo:'add-track',pathMatch:'full' },
+    {
+        path:'add-track',
+        loadComponent:()=>import('./features/track-manager/track-manager.component').then(m=>m.TrackManagerComponent)
+    },
+    {
+        path:'library',
+        loadComponent:()=>import('./features/library/library.component').then(m=>m.LibraryComponent)
+    }
+
+
+];
