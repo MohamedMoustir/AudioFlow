@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import {liveQuery} from "dexie";
 import {db} from '../db/db-config'
 import { Track } from '../models/track';
+import {from ,Observable} from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
 
-  getAllTracks(){
-    return liveQuery((()=>db.tracks.orderBy('addedDate').reverse().toArray()));
+  getAllTracks():Observable<Track[]>{
+    return from(liveQuery((()=>db.tracks.orderBy('addedDate').reverse().toArray())));
   }
 
   async AddTrack(track: Track): Promise<number>{
