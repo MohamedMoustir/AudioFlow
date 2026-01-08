@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TrackService } from '../../core/services/track.service';
 import { AudioPlayerService } from '../../core/services/audio-player.service';
@@ -8,26 +8,37 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Track } from '../../core/models/track';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-library',
   standalone: true,
   imports: [CommonModule, RouterLink, FormatTimePipe, FormsModule, DragDropModule],
   templateUrl: './library.component.html',
-  styleUrl: './library.component.scss'
+  styleUrl: './library.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LibraryComponent {
 
   trackService = inject(TrackService);
-  tracks$ = this.trackService.getAllTracks();
   playerService = inject(AudioPlayerService)
-  private coverCache = new Map<number, SafeUrl | string>();
   private sanitizer = inject(DomSanitizer);
+
+  private coverCache = new Map<number, SafeUrl | string>();
+  tracks$ = this.trackService.getAllTracks();
 
   searchQuery = signal<string>('');
   selectedFilter = signal<string>('Tout');
   private allTrack = signal<Track[]>([]);
-
+  
+  constructor() {
+    this.trackService.getAllTracks()
+      .pipe(takeUntilDestroyed())
+      .subscribe(data => {
+        this.allTrack.set(data);
+      });
+  }
   filteredTracks = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const filter = this.selectedFilter();
@@ -42,14 +53,8 @@ export class LibraryComponent {
     })
   })
 
-  ngOnInit() {
-    this.trackService.getAllTracks().subscribe({
-      next: (data) => {
-        this.allTrack.set(data);
-      },
-      error: (err) => console.error('Erreur chargement tracks:', err)
-    })
-  }
+
+
   onPlay(track: any) {
     this.playerService.playTrack(track, this.filteredTracks());
   }
@@ -109,7 +114,7 @@ export class LibraryComponent {
     }
 
     const currentList = [...this.allTrack()];
-    moveItemInArray(currentList,event.previousIndex,event.currentIndex);
+    moveItemInArray(currentList, event.previousIndex, event.currentIndex);
     this.allTrack.set(currentList);
   }
 }
