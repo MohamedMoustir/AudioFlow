@@ -31,7 +31,7 @@ export class LibraryComponent {
   searchQuery = signal<string>('');
   selectedFilter = signal<string>('Tout');
   private allTrack = signal<Track[]>([]);
-  
+
   constructor() {
     this.trackService.getAllTracks()
       .pipe(takeUntilDestroyed())
@@ -39,10 +39,13 @@ export class LibraryComponent {
         this.allTrack.set(data);
       });
   }
+  
   filteredTracks = computed(() => {
+
     const query = this.searchQuery().toLowerCase();
     const filter = this.selectedFilter();
     const tracks = this.allTrack();
+
     return tracks.filter(track => {
       const matchesSearch = track.title.toLowerCase().includes(query) ||
         track.artist.toLowerCase().includes(query);
@@ -51,6 +54,7 @@ export class LibraryComponent {
 
       return matchesSearch && matchesCategory;
     })
+
   })
 
 
@@ -79,6 +83,7 @@ export class LibraryComponent {
 
     return '';
   }
+  
   async deleteTrack(id: number, event: Event) {
     event.stopPropagation();
     if (confirm('Voulez-vous vraiment supprimer ce morceau ?')) {
@@ -97,7 +102,7 @@ export class LibraryComponent {
   }
 
   previous() {
-    this.playerService.togglePlay();
+    this.playerService.previous();
   }
 
   next() {

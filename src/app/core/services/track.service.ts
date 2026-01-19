@@ -33,12 +33,28 @@ export class TrackService {
       const duration = await getAudioDuration(file);
       const newTrack = this.createTrackEntity(file, metadata, duration);
       await this.storage.AddTrack(newTrack);
-
       this._status.set('success');
       setTimeout(() => this._status.set('idle'), 2000);
     } catch (err: any) {
       console.error('TrackService Error:', err);
       this._error.set(err.message || AUDIO_CONSTANTS.ERRORS.UNKNOWN_ERROR);
+      this._status.set('error');
+      throw err;
+    }
+  }
+   async updateTrack(track: Track): Promise<void> {
+    this._status.set('loading');
+    this._error.set(null);
+    try {
+      if (!track.id) throw new Error('Track ID is missing');
+      await this.storage.updateTrack(track);
+      this._status.set('success');
+      
+      setTimeout(() => this._status.set('idle'), 2000);
+
+    } catch (err: any) {
+      console.error('Update Error:', err);
+      this._error.set(err.message || 'Error updating track');
       this._status.set('error');
       throw err;
     }
@@ -66,38 +82,10 @@ export class TrackService {
     } as Track;
   }
 
-  // getTrackById(id: number): Observable<Track | undefined> {
-  //   return from(new Promise<Track | undefined>(async (resolve, reject) => {
-  //     const db = await this.initDB();
-  //     const transaction = db.transaction([this.storeName],'readonly');
-  //     const store =transaction.objectStore(this.storeName);
-  //     const request = store.get(id);
-
-  //     request.onsuccess = ()=> resolve(request.result);
-  //     request.onerror = () => reject('Track not found');
-  //   }))
-  // }
-
  getTrackById(id: number): Observable<Track | undefined> {
     return from(this.storage.getTrackById(id));
   }
 
-  async updateTrack(track: Track): Promise<void> {
-    this._status.set('loading');
-    this._error.set(null);
-    try {
-      if (!track.id) throw new Error('Track ID is missing');
-      await this.storage.updateTrack(track);
-      this._status.set('success');
-      
-      setTimeout(() => this._status.set('idle'), 2000);
-
-    } catch (err: any) {
-      console.error('Update Error:', err);
-      this._error.set(err.message || 'Error updating track');
-      this._status.set('error');
-      throw err;
-    }
-  }
+ 
 
 }

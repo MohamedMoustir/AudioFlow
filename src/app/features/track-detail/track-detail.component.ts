@@ -22,6 +22,7 @@ export class TrackDetailComponent {
   public playerService = inject(AudioPlayerService);
   private sanitizer = inject(DomSanitizer);
   track: Track | undefined;
+
   ngOnInit() {
     const id = Number(this.routr.snapshot.paramMap.get('id'));
     if (id) {
@@ -38,6 +39,7 @@ export class TrackDetailComponent {
     }
 
   }
+
   getCoverUrl(track: Track): SafeUrl | string {
     if (!track.cover) return '';
     if (typeof track.cover === 'string') return track.cover;
@@ -46,16 +48,18 @@ export class TrackDetailComponent {
     }
     return '';
   }
+
   play() {
     if (this.track) {
       this.playerService.playTrack(this.track, [this.track]);
     }
   }
+  
   delete() {
     if (this.track && confirm('Voulez-vous vraiment supprimer ce morceau ?')) {
-     this.trackService.deleteTrack(this.track.id!).then(()=>{
-      this.router.navigate(['/library']);
-     })
+      this.trackService.deleteTrack(this.track.id!).then(() => {
+        this.router.navigate(['/library']);
+      })
     }
   }
 

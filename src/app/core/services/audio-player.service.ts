@@ -81,7 +81,6 @@ export class AudioPlayerService {
   setVolume(vol: number) {
     this.audio.volume = vol;
     this.volume.set(vol);
-
   }
 
   next() {
@@ -108,9 +107,10 @@ export class AudioPlayerService {
       return;
     }
     const currentIndex = list.findIndex(t => t.id === current.id);
-    if (currentIndex >0){
+    if (currentIndex > 0){
       this.playTrack(list[currentIndex  -1])
 
     }
   }
+
 }

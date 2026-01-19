@@ -62,6 +62,7 @@ export class TrackManagerComponent {
       error: () => this.router.navigate(['/library'])
     });
   }
+  
   onAudioFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
